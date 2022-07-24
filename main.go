@@ -35,7 +35,7 @@ func main() {
 				write_log(file_fail, path, "fail")
 			}
 		}
-		// fmt.Println(strings.TrimSpace(vm_list[i].Full_path), strings.TrimSpace(vm_list[i].powerState))
+		fmt.Println(strings.TrimSpace(vm_list[i].Full_path), strings.TrimSpace(vm_list[i].powerState))
 	}
 }
 
