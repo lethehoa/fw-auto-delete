@@ -12,132 +12,79 @@ import (
 )
 
 var vm_list []vm_information
+var today = time.Now()
 
 type vm_information struct {
 	Full_path, powerState string
 }
 
-// import "govc"
-
 func main() {
 	var path string
-	write_to_file()
 	create_off_list()
-	file_success, _ := os.OpenFile("log/log_success.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	file_fail, _ := os.OpenFile("log/log_fail.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file_success, _ := os.OpenFile("log/log_success.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file_fail, _ := os.OpenFile("log/log_fail.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	for i := 0; i < len(vm_list); i++ {
 		if strings.Compare(strings.TrimSpace(vm_list[i].powerState), "poweredOff") == 0 {
-			// fmt.Println("Deleting ", vm_list[i].Full_path)
+			fmt.Println("Deleting ", vm_list[i].Full_path)
 			path = strings.TrimSpace(vm_list[i].Full_path)
-			time.Sleep(10 * time.Second)
-			_, err := exec.Command("govc", "vm.info", path).Output()
-			if err != nil {
-				fmt.Println(err)
-				write_fail_log(file_fail, path)
+			time.Sleep(6 * time.Second)
+			_, err := exec.Command("govc", "vm.destroy", path).Output()
+			if err == nil {
+				write_log(file_success, path, "success")
 			} else {
-				write_sucess_log(file_success, path)
+				write_log(file_fail, path, "fail")
 			}
+		}
+		// fmt.Println(strings.TrimSpace(vm_list[i].Full_path), strings.TrimSpace(vm_list[i].powerState))
+	}
+}
+
+func write_log(fileName *os.File, vm_path string, key string) {
+	if strings.Compare(key, "success") == 0 {
+		_, err := fileName.Write([]byte("Deleted " + vm_path + "\n"))
+		if err != nil {
+			fmt.Println(err)
+		}
+	} else {
+		_, err := fileName.Write([]byte("Cannot deleted " + vm_path + "\n"))
+		if err != nil {
+			fmt.Println(err)
 		}
 	}
 }
 
-func write_sucess_log(fileName *os.File, success_vm_path string) {
-	_, err := fileName.Write([]byte("Deleted " + success_vm_path + "\n"))
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func write_fail_log(fileName *os.File, fault_vm_path string) {
-	_, err := fileName.Write([]byte("Cannot deleted " + fault_vm_path + "\n"))
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func write_to_file() {
-	// fmt.Scanln(&input_from_user)
-	var f *os.File
+func return_list_fw() string {
 	out, _ := exec.Command("govc", "ls", "/VDC-Auto-Firewall/vm").Output()
-	output := string(out)
-	f, _ = os.Create("log/fw_list.txt")
-	_, err := f.WriteString(output)
-	if err != nil {
-		fmt.Println("error")
-	}
-	// for i := 0; i < len(datacenters); i++ {
-	// 	out, _ := exec.Command("govc", "ls", datacenters[i]).Output()
-	// 	output := string(out)
-	// 	switch i {
-	// 	case 0:
-	// 		f, _ = os.Create("v2_list.txt")
-	// 	case 1:
-	// 		f, _ = os.Create("v3_list.txt")
-	// 	case 2:
-	// 		f, _ = os.Create("v4_list.txt")
-	// 	case 3:
-	// 		f, _ = os.Create("fw_list.txt")
-	// 	default:
-	// 		fmt.Println("Wrong input")
-	// 		return
-	// 	}
-	// 	_, err := f.WriteString(output)
-	// 	if err != nil {
-	// 		fmt.Println("error")
-	// 	}
-	// }
+	return string(out)
 }
 
 func create_off_list() {
 	var f *os.File
-	f, _ = os.Open("log/fw_list.txt")
+	f, _ = os.Open("log/fw_list.log")
 	write_off_list_to_file(f)
-	// for i := 0; i < 4; i++ {
-	// 	switch i {
-	// 	case 0:
-	// 		f, _ = os.Open("v2_list.txt")
-	// 		write_off_list_to_file(f)
-	// 	case 1:
-	// 		f, _ = os.Open("v3_list.txt")
-	// 		write_off_list_to_file(f)
-	// 	case 2:
-	// 		f, _ = os.Open("v4_list.txt")
-	// 		write_off_list_to_file(f)
-	// 	case 3:
-	// 		f, _ = os.Open("fw_list.txt")
-	// 		write_off_list_to_file(f)
-	// 	default:
-	// 		fmt.Println("Wrong")
-	// 		return
-	// 	}
-	// }
-
 }
 
-// func read_from_file
 func write_off_list_to_file(fileName *os.File) {
 	var s, vm_date_time string
-	today := time.Now().Format("02-01-2006")
-	file, _ := os.Create("log/off-list-" + today + ".txt")
-	// file, _ := os.OpenFile("off-list-"+today+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	scanner := bufio.NewScanner(fileName)
+	date_used := today.Format("02-01-2006")
+	file, _ := os.Create("log/off-list-" + date_used + ".log")
+	scanner := bufio.NewScanner(strings.NewReader(return_list_fw()))
 
 	for scanner.Scan() {
 		full_path := scanner.Text()
 		arr := strings.Split(full_path, "/")
 		s = arr[3]
-		m, _ := regexp.MatchString(`(?m)(\d{1,4}([.\-\/])\d{1,2}([.\-\/])\d{1,4})`, s) // check for date - time
+		m, _ := regexp.MatchString(`(?m)(\d{1,4}([.\-\/])\d{1,2}([.\-\/])\d{1,4})`, s) // get date
 		if strings.Contains(s, "-off-") && m {
 			vm_date_time = return_date_time(s) //check if vm_path end with date
 			if vm_date_time != "not_valid" {
-				// if compare_date_time_with_current(vm_date_time) {
-				vm_list = append(vm_list, return_a_struct_from_vm_info(full_path))
-				// fmt.Println(full_path)
-				_, err := file.Write([]byte(s + "\n"))
-				if err != nil {
-					log.Fatal(err)
+				if compare_date_time_with_current(vm_date_time) { //delete if day off > 2 days
+					vm_list = append(vm_list, return_a_struct_from_vm_info(full_path))
+					_, err := file.Write([]byte(s + "\n"))
+					if err != nil {
+						log.Fatal(err)
+					}
 				}
-				// }
 			}
 		}
 	}
@@ -146,12 +93,14 @@ func write_off_list_to_file(fileName *os.File) {
 func return_date_time(vm_path string) string {
 	var re = regexp.MustCompile(`(?m)(\d{1,4}([.\-\/])\d{1,2}([.\-\/])\d{1,4})`) //return date-time
 	var str_final = re.FindString(vm_path)
+	str_final_array := strings.Split(str_final, "-")
 	if !strings.HasSuffix(vm_path, str_final) {
 		return "not_valid"
 	}
-	if strings.Contains(str_final, "-22") {
-		str_final_1 := strings.Replace(str_final, "22", "2022", -1)
-		return str_final_1
+	if strings.Contains(str_final, "-22") || strings.Contains(str_final, "-2") { //fix pattern
+		str_final_array[2] = "2022"
+		str_final = strings.Join(str_final_array[:], "-")
+		return str_final
 	}
 	return str_final
 
@@ -163,7 +112,7 @@ func compare_date_time_with_current(date string) bool {
 	if err != nil {
 		fmt.Println(err)
 	}
-	if today.YearDay()-t.YearDay() > 7 {
+	if today.YearDay()-t.YearDay() > 2 {
 		return true // xoa
 	}
 	return false // khong xoa
