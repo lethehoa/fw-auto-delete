@@ -19,27 +19,27 @@ type vm_information struct {
 }
 
 func main() {
-	var path string
+	// var path string
 	_, err := os.Stat("log")
 	if os.IsNotExist(err) {
 		err = os.Mkdir("log", 0755)
 	}
 	create_off_list_fw()
-	file_success, _ := os.OpenFile("log/log_success.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	file_fail, _ := os.OpenFile("log/log_fail.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// file_success, _ := os.OpenFile("log/log_success.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// file_fail, _ := os.OpenFile("log/log_fail.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	for i := 0; i < len(vm_list); i++ {
-		if strings.Compare(strings.TrimSpace(vm_list[i].powerState), "poweredOff") == 0 {
-			fmt.Println("Deleting ", vm_list[i].Full_path)
-			path = strings.TrimSpace(vm_list[i].Full_path)
-			time.Sleep(6 * time.Second)
-			_, err := exec.Command("govc", "vm.destroy", path).Output()
-			if err == nil {
-				write_log(file_success, path, "success")
-			} else {
-				write_log(file_fail, path, "fail")
-			}
-		}
-		// fmt.Println(strings.TrimSpace(vm_list[i].Full_path), strings.TrimSpace(vm_list[i].powerState))
+		// if strings.Compare(strings.TrimSpace(vm_list[i].powerState), "poweredOff") == 0 {
+		// 	fmt.Println("Deleting ", vm_list[i].Full_path)
+		// 	path = strings.TrimSpace(vm_list[i].Full_path)
+		// 	time.Sleep(6 * time.Second)
+		// 	_, err := exec.Command("govc", "vm.destroy", path).Output()
+		// 	if err == nil {
+		// 		write_log(file_success, path, "success")
+		// 	} else {
+		// 		write_log(file_fail, path, "fail")
+		// 	}
+		// }
+		fmt.Println(strings.TrimSpace(vm_list[i].Full_path), strings.TrimSpace(vm_list[i].powerState))
 	}
 }
 
@@ -75,7 +75,7 @@ func write_off_list_to_file(fileName *os.File, vm_list_returned string) {
 		m, _ := regexp.MatchString(`(?m)(\d{1,4}([.\-\/])\d{1,2}([.\-\/])\d{1,4})`, s) // get date
 		if strings.Contains(s, "-off-") && m {
 			vm_date_time = return_date_time(s) //check if vm_path end with date
-			if vm_date_time != "not_valid" && compare_date_time_with_current(vm_date_time) {
+			if vm_date_time != "not_valid" {
 				vm_list = append(vm_list, return_a_struct_from_vm_info(full_path))
 				_, err := fileName.Write([]byte(s + "\n"))
 				if err != nil {
