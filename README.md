@@ -40,7 +40,7 @@ govc ls <path>
 - Xét thỏa mãn 2 điều kiện trên ta sẽ đưa vào lệnh xóa.
 
 ## 4. Hạn chế.
-- Hàm xóa của **govc** khá nguy hiểm vì chỉ cần truyền vào path của vm là nó sẽ **off con VM đó xóa nó** nên cần phải xét chính xác đường dẫn của VM và thõa mãn trạng thái **powerOff** thì mới đưa vào hàm xóa *(chưa tìm đc giải pháp để thay thế và test chi tiết - vì ở hạ tầng).*
+- Hàm xóa của **govc** khá nguy hiểm vì chỉ cần truyền vào path của vm là nó sẽ **off con VM đó** và **xóa** nên cần phải xét chính xác đường dẫn của VM và thõa mãn trạng thái **powerOff** thì mới đưa vào hàm xóa *(chưa tìm đc giải pháp để thay thế và test chi tiết - vì ở hạ tầng).*
 - Còn phụ thuộc hoàn toàn vào ứng dụng viết sẵn bên thứ 3.
 - Cơ chế ghi log còn hơi nghèo nàn (dùng tạm).
 - Chủ yếu dựa vào bên thứ 3 nên hoàn toàn có thể viết bằng ngôn ngữ khác (miễn là dễ dàng xử lý được chuỗi). 
