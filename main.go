@@ -33,7 +33,7 @@ func main() {
 			fmt.Println("Deleting ", vm_list[i].Full_path)
 			path = strings.TrimSpace(vm_list[i].Full_path)
 			time.Sleep(6 * time.Second)
-			// _, err := exec.Command("govc", "vm.destroy", path).Output()	//Delete fw - uncomment when needed
+			_, err := exec.Command("govc", "vm.destroy", path).Output() //Delete fw - uncomment when needed
 			if err == nil {
 				write_log(file_success, path, "success")
 			} else {
