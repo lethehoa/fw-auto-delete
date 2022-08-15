@@ -40,12 +40,6 @@ func main() {
 				write_log(file_fail, path, "fail")
 			}
 		}
-		out, _ := exec.Command("govc", "ls").Output()
-		file, _ := os.Create("test.txt")
-		_, err := file.Write([]byte(string(out)))
-		if err != nil {
-			fmt.Println("test")
-		}
 		// fmt.Println(strings.TrimSpace(vm_list[i].Full_path), strings.TrimSpace(vm_list[i].powerState))
 	}
 }
