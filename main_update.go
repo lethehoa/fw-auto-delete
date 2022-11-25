@@ -33,7 +33,7 @@ func main() {
 			fmt.Println("Deleting ", vm_list[i].Full_path)
 			path = strings.TrimSpace(vm_list[i].Full_path)
 			time.Sleep(6 * time.Second)
-//			_, err := exec.Command("govc", "vm.destroy", path).Output() //Delete fw - uncomment when needed
+			_, err := exec.Command("govc", "vm.destroy", path).Output() //Delete fw - uncomment when needed
 			if err == nil {
 				write_log(file_success, path, "success")
 			} else {
@@ -42,7 +42,7 @@ func main() {
 		}
 		// fmt.Println(strings.TrimSpace(vm_list[i].Full_path), strings.TrimSpace(vm_list[i].powerState))
 	}
- // 	create_fw()
+  	create_fw()
 }
 
 func write_log(fileName *os.File, vm_path string, key string) {
@@ -76,7 +76,7 @@ func write_off_list_to_file(fileName *os.File, vm_list_returned string) {
 		arr := strings.Split(full_path, "/")
 		s = arr[3]
 		m, _ := regexp.MatchString(`(?m)(\d{1,4}([.\-\/])\d{1,2}([.\-\/])\d{1,4})`, s) // get date
-		if strings.Contains(s, "-off-") && m {
+		if strings.Contains(s, "-off-") && m || strings.Contains(s, "-reinstall-") && m {
 			vm_date_time = return_date_time(s) //check if vm_path end with date
 			if vm_date_time != "not_valid" {
 				vm_list = append(vm_list, return_a_struct_from_vm_info(full_path))
