@@ -1,4 +1,4 @@
-log/*.log
+log/
 fw-auto-delete
 list_fw.sh
 delete-fw-auto
